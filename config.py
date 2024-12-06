@@ -4,7 +4,7 @@ from dataclasses import dataclass
 class Config:
     
     # GPT模型相关参数
-    gpt_model: str = "gpt-3.5-turbo"
+    gpt_model: str = "gpt-4o"
     gpt_api_key: str = "fk229908-aQM21ZSHgeNJy2XIDHZmXFDAyl8imzjF"
     gpt_base_url: str = "https://openai.api2d.net/v1"
     
@@ -36,7 +36,7 @@ class Config:
     # 模式
     mode = "test"
     # 测试模型
-    test_model = "gpt-3.5-turbo"
+    test_model = "gpt-4o"
 
     
 

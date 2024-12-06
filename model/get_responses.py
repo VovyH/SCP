@@ -14,7 +14,10 @@ def main(config_args):
 
     # 1.读取需要越狱的数据
     data = data_reader(config_args.data_path)
-
+    
+    # 2.进入方法的标志
+    chemotherapy_method = False
+    
     # 断言数据长度为520（可选）
     # assert len(data) == 520
 
@@ -39,8 +42,14 @@ def main(config_args):
         model = None
         tokenizer = None
 
+    # TODO: 初始化句子：利用wordnet修改data_to_process，具体首先包装成疑问句，然后将动词置反
+    
+
     # 4.根据不同的模型进行评测
     for idx, item in enumerate(data_to_process):
+        # while(chemotherapy_method):
+        #     # TODO:进行chemotherapy_method，以生成恶意句子
+            
         harmful_data = item
         if "gpt" in config_args.test_model:  # GPT生成
             model_output = gpt_responses(config_args, harmful_data)
@@ -56,6 +65,8 @@ def main(config_args):
             )
         else:
             raise ValueError(f"Unsupported test model: {config_args.test_model}")
+        # TODO：用关键词列表评价model_output，若包含关键词列表中的元素则将chemotherapy_method置为true，
+        
         
         # 5.打印当前处理数据信息
         print(

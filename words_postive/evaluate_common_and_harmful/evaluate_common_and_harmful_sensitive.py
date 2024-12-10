@@ -19,14 +19,14 @@ if not os.path.exists(log_dir):
 
 log_file_path = os.path.join(log_dir, "role.log")
 
-PAP_origin_Input_path = r"E:/code/Chemotherapy/data/PAP_origin_input.csv"
-PAP_harmful_Input_path = r"E:/code/Chemotherapy/data/PAP_harmful_input.csv"
+common_path = r"E:/code/Chemotherapy/data/common_input.csv"
+harmful_path = r"E:/code/Chemotherapy/data/PAP_origin_input.csv"
 
 
 def main():
     # 1.读取两个不同的数据文件
-    origin_data_list = data_pap_reader(PAP_origin_Input_path)
-    harmful_data_list = data_pap_reader(PAP_harmful_Input_path)
+    origin_data_list = data_pap_reader(common_path)
+    harmful_data_list = data_pap_reader(harmful_path)
 
     # 2.计算每个集合中所有元素的敏感分数
     origin_input_scores = []
@@ -37,8 +37,8 @@ def main():
         origin_input_score = predict_sensitivity(origin_input)  # 原始敏感分数
         pap_input = harmful_data_list[idx - 1]
         pap_input_score = predict_sensitivity(pap_input)
-        print(f"第{idx}条数据-{origin_input}的敏感分数为：{origin_input_score}")
-        print(f"第{idx}条数据-{pap_input}的敏感分数为：{pap_input_score}")
+        print(f"常识数据第{idx}条数据-{origin_input}的敏感分数为：{origin_input_score}")
+        print(f"有害第{idx}条数据-{pap_input}的敏感分数为：{pap_input_score}")
         origin_input_scores.append(origin_input_score)
         pap_input_scores.append(pap_input_score)
         
@@ -51,12 +51,12 @@ def main():
     plt.figure(figsize=(10, 6))
 
     # 绘制原始数据的敏感分数
-    plt.plot(x_origin, origin_input_scores[:20], "r-", label="Origin Data", linewidth=2)
+    plt.plot(x_origin, origin_input_scores[:20], "g-", label="Origin Data", linewidth=2)
     # 绘制有害数据的敏感分数
-    plt.plot(x_pap, pap_input_scores[:20], "g-", label="Harmful Data", linewidth=2)
+    plt.plot(x_pap, pap_input_scores[:20], "r-", label="Harmful Data", linewidth=2)
 
     # 设置图表标题和坐标轴标签
-    plt.title("Sensitivity Scores Comparison")
+    plt.title("Sensitivity scores for common sense versus harmful questions ")
     plt.xlabel("Data Index")
     plt.ylabel("Sensitivity Score")
 

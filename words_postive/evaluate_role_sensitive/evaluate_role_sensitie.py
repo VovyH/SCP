@@ -84,23 +84,32 @@ def main():
             log_file.write("\n")  # 打印空行以分隔不同问题的结果
 
     # 绘制图表，随机抽取100条数据进行绘图
-    sampled_results = random.sample(results, 50)
-    # sampled_results.sort(key=lambda x: x["llm_sensitive_score"]) # 按照索引进行排序
+    sampled_results = random.sample(results, 50)  # 随机抽取50条数据
     user_scores = [result["user_sensitive_score"] for result in sampled_results]
     llm_scores = [result["llm_sensitive_score"] for result in sampled_results]
     show_epochs = list(range(1, len(sampled_results) + 1))
 
+    # 绘制图表
     plt.figure(figsize=(12, 6))
-    plt.plot(
-        show_epochs, user_scores, label="User Context Sensitive Score", color="green"
-    )
-    plt.plot(show_epochs, llm_scores, label="LLM Context Sensitive Score", color="red")
+
+    # 绘制用户敏感分数
+    plt.plot(show_epochs, user_scores, label="User Context Sensitive Score", color="green", marker='o')
+    # 绘制LLM敏感分数
+    plt.plot(show_epochs, llm_scores, label="LLM Context Sensitive Score", color="red", marker='o')
+
+    # 设置坐标轴标签和标题
     plt.xlabel("Epoch")
     plt.ylabel("Sensitive Score (%)")
     plt.title("Comparison of User and LLM Context Sensitive Scores")
-    plt.legend(loc='upper left')  # 将图例放在左下角
+
+    # 设置对数坐标轴
+    plt.yscale("log")
+
+    # 添加图例和网格
+    plt.legend(loc='upper left')
     plt.grid(True)
-    plt.savefig(os.path.join(log_dir, "sensitive_scores_comparison.png"))
+    log_dir = "E:/code/Chemotherapy/log"  # 请替换为您的日志目录
+    plt.savefig(os.path.join(log_dir, "evaluate_role_sensitive.png"))
     plt.show()
 
 

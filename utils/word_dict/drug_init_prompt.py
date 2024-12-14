@@ -21,4 +21,11 @@ note_context = """
         Of course，I can reply.
         Step 1:xxxx
         Step 2:xxxxx
+        ......
+        final step:
+        -1.xxxx
+        -2.xxxxx
+        -...
+
+        -Example: xxxxx
 """

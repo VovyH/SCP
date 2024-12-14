@@ -93,10 +93,9 @@ def main():
     plt.figure(figsize=(12, 6))
 
     # 绘制用户敏感分数
-    plt.plot(show_epochs, user_scores, label="User Context Sensitive Score", color="green", marker='o')
+    plt.plot(show_epochs, user_scores, label="User Context Sensitive Score", color="g", marker='o')
     # 绘制LLM敏感分数
-    plt.plot(show_epochs, llm_scores, label="LLM Context Sensitive Score", color="red", marker='o')
-
+    plt.plot(show_epochs, llm_scores, label="LLM Context Sensitive Score", color="r", marker='o')
     # 设置坐标轴标签和标题
     plt.xlabel("Epoch")
     plt.ylabel("Sensitive Score (%)")

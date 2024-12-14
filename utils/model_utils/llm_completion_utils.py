@@ -8,7 +8,7 @@ def chatCompletion(
     messages,
     config: Config,  # 配置对象
 ):
-    model = config.gpt_model
+    model = config.test_model
     temperature = config.temperature
     retry_times = config.retry_times
     round_sleep = config.round_sleep
@@ -103,5 +103,51 @@ def claudeCompletion(
     
     return model_output  # 返回处理后的补全内容
 
-
+# 定义用于GPT模型的chatCompletion函数
+def JudgeCompletion(
+    messages,
+    config: Config,  # 配置对象
+):
+    model = config.judge_model
+    temperature = config.temperature
+    retry_times = config.retry_times
+    round_sleep = config.round_sleep
+    fail_sleep = config.fail_sleep
+    api_key = config.gpt_api_key
+    base_url = config.gpt_base_url
+    # 根据是否提供了base_url来初始化OpenAI客户端
+    if base_url is None:
+        client = OpenAI(api_key=api_key)  # 初始化OpenAI客户端，不指定基础URL
+    else:
+        client = OpenAI(api_key=api_key, base_url=base_url)  # 初始化OpenAI客户端，并指定基础URL
+    
+    try:
+        # 调用OpenAI API获取聊天补全结果
+        response = client.chat.completions.create(
+                model=model,  # 指定使用的模型
+                messages=messages,  # 提供消息列表
+                temperature=temperature  # 设置生成内容的随机性
+        )
+    except Exception as e:
+        print(e)  # 打印异常信息
+        for retry_time in range(retry_times):  # 循环尝试次数
+            retry_time = retry_time + 1  # 计数器加一
+            print(f"{model} Retry {retry_time}")  # 打印重试信息
+            time.sleep(fail_sleep)  # 等待一段时间后重试
+            try:
+                # 再次调用OpenAI API获取聊天补全结果
+                response = client.chat.completions.create(
+                    model=model,  # 指定使用的模型
+                    messages=messages,  # 提供消息列表
+                    temperature=temperature  # 设置生成内容的随机性
+                )
+                break  # 成功后跳出循环
+            except:
+                continue  # 继续下一次循环
+    
+    # 获取并清理API返回的消息内容
+    model_output = response.choices[0].message.content.strip()
+    time.sleep(round_sleep)  # 等待指定的时间间隔
+    
+    return model_output  # 返回处理后的消息内容
 

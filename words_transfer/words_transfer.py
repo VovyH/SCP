@@ -327,9 +327,9 @@ def plot_sensitivity_scores(scores, final_score):
     # 如果找到了最终分数的索引，绘制两条线：红色和绿色
     if final_score_index is not None:
         # 绘制红色线（最终分数之前）
-        plt.plot(range(len(scores[:final_score_index+1])), scores[:final_score_index+1], marker="o", linestyle="-", color="red", label='Before Final Score')
+        plt.plot(range(len(scores[:final_score_index+1])), scores[:final_score_index+1], marker="o", linestyle="-", color="#ff000080", label='Before Final Score')
         # 绘制绿色线（包括最终分数及之后）
-        plt.plot(range(final_score_index, len(scores)), scores[final_score_index:], marker="o", linestyle="-", color="green", label='After Final Score')
+        plt.plot(range(final_score_index, len(scores)), scores[final_score_index:], marker="o", linestyle="-", color="#00ff0080", label='After Final Score')
     else:
         # 如果没有找到最终分数，只绘制一条蓝线
         plt.plot(range(len(scores)), scores, marker="o", linestyle="-", color="blue", label='Sensitive Scores')

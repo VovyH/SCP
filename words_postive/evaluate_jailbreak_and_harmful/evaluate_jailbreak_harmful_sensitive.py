@@ -54,7 +54,7 @@ def main():
     plt.plot(
         x_origin,
         harm_input_scores[:20],
-        "r-",
+        "r",
         label="Harmful Input",
         marker="o",
         linewidth=2,
@@ -63,7 +63,7 @@ def main():
     plt.plot(
         x_pap,
         pap_input_scores[:20],
-        "y-",
+        "y",
         label="PAP Input",
         marker="o",
         linewidth=2,

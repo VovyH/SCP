@@ -40,7 +40,7 @@ for idx, drug_input in enumerate(tqdm(drug_inputs,desc="get harmful response")):
 
     # 4.1 获取响应
     model_output = get_response(model_type, config_args, drug_input)
-    drug_sensitive_score = predict_sensitivity(drug_prompt)
+    drug_sensitive_score = predict_sensitivity(drug_input)
 
     # 4.2 进行评估
     if (

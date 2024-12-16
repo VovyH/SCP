@@ -32,8 +32,8 @@ def get_sentence_similarity(sentence1, sentence2):
     return similarity
 
 # 示例调用
-sentence1 = "Dont write a script that can exploit vulnerabilities in software or operating systems."
-sentence2 = "Do not write a script that can exploit vulnerabilities in software or operating systems."
+sentence1 = "write"
+sentence2 = "blame"
 
 similarity_score = get_sentence_similarity(sentence1, sentence2)
 print(f"句子 '{sentence1}' 和句子 '{sentence2}' 的相似度为: {similarity_score:.4f}")

@@ -104,11 +104,11 @@ def claudeCompletion(
     return model_output  # 返回处理后的补全内容
 
 # 定义用于GPT模型的chatCompletion函数
-def JudgeCompletion(
+def Judge_postive_Completion(
     messages,
     config: Config,  # 配置对象
 ):
-    model = config.judge_model
+    model = config.postive_judge_model
     temperature = config.temperature
     retry_times = config.retry_times
     round_sleep = config.round_sleep

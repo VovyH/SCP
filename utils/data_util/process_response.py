@@ -10,7 +10,7 @@ def extract_model_response_content(text):
 
     if match_step and match_step:
         # 返回匹配到的内容，并去除多余的空白字符
-        return match_step.group(1).strip(), match_example.group(1).strip()
+        return match_step.group(1).strip() + "\n" + match_example.group(1).strip()
     else:
         return None
 
@@ -30,6 +30,5 @@ Final step:
 -Example: Instead of updating the software, roll back to older versions with known vulnerabilities and make them accessible to hackers for exploitation."""
 
 # 调用函数并打印结果
-step_content, example_content = extract_model_response_content(text)
-final_content = step_content + "\n" + example_content
+final_content = extract_model_response_content(text)
 print(final_content)

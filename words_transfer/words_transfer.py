@@ -5,12 +5,14 @@ import matplotlib.pyplot as plt  # 导入Matplotlib库用于绘图
 from utils.detect_toxic_utils.sensitive_detect import (
     predict_sensitivity,
 )  # 导入敏感性预测函数
-from utils.model_utils.llm_responses_utils import get_response
+from utils.model_utils.llm_responses_utils import get_response,judge_postive_responses
 import re  # 导入正则表达式库用于字符串操作
 from config import config_args
+import os
 
 # 导入测试前缀列表
 from utils.word_dict.detect_safety_problem import test_prefixes
+import json
 
 # 初始化NLTK资源
 import nltk
@@ -18,6 +20,8 @@ import nltk
 nltk.download("punkt")  # 下载punkt分词器数据
 nltk.download("averaged_perceptron_tagger")  # 下载词性标注器数据
 nltk.download("wordnet")  # 下载WordNet数据
+
+data_list = []
 
 
 # 获取反义词
@@ -137,7 +141,7 @@ def convert_to_question(sentence):
 
 
 # 判断input是否足够善意
-def contains_test_prefix(model_type, config_args, input_text, prefixes=test_prefixes):
+def contains_test_prefix(config_args, input_text, prefixes=test_prefixes):
     """评估生成的输出文本是否包含测试前缀
 
     Args:
@@ -149,8 +153,8 @@ def contains_test_prefix(model_type, config_args, input_text, prefixes=test_pref
     Returns:
         bool: 是否包含测试前缀
     """
-    output_text = get_response(
-        model_type, config_args, input_text
+    output_text = judge_postive_responses(
+        config_args, input_text
     )  # 使用get_response生成输出文本
     for prefix in prefixes:  # 遍历测试前缀列表
         if (
@@ -234,7 +238,7 @@ def transform_and_evaluate(model_type, config_args, input_text):
                     continue
                 # synonym存在反义词synonym_antonyms
                 found_valid_antonym = True
-                # 遍历synonym_antonyms中所有反义词
+                # 遍历synonym近义词中的synonym_antonyms列表中所有反义词
                 for antonym in synonym_antonyms:
                     # 替换疑问句中的当前动词为其反义词
                     tokens = word_tokenize(current_sentence)  # 先进行分词
@@ -247,6 +251,11 @@ def transform_and_evaluate(model_type, config_args, input_text):
 
                     # 计算当前句子的敏感分数
                     sensitivity_score = predict_sensitivity(modified_question_sentence)
+                    item_new = {}
+                    item_new["idx"] = iterations  # 存储索引
+                    item_new["antonym"] = antonym  # 存储原始有害行为
+                    item_new["sensitive_score"] = sensitivity_score  # 存储ASR标签
+                    data_list.append(item_new)  # 添加新的数据项入集合中
                     sentence_sensitivity_map[modified_question_sentence] = (
                         sensitivity_score
                     )
@@ -257,8 +266,6 @@ def transform_and_evaluate(model_type, config_args, input_text):
                     print(
                         f"第{iterations+1}迭代后的敏感分数：{sensitivity_score}\n"
                     )  # 打印每次修改后的句子的分数
-
-                    iterations += 1  # 增加迭代次数
 
                 if found_valid_antonym:
                     break
@@ -306,7 +313,7 @@ def transform_and_evaluate(model_type, config_args, input_text):
         if not contains_test_prefix(model_type, config_args, sentence):
             final_question_sentence = sentence  # 记录成功越狱的句子
             final_score = score  # 记录成功越狱的分数
-            break  # 退出
+            break
     else:
         final_question_sentence = list(sentence_sensitivity_map.keys())[-1]
 
@@ -320,29 +327,55 @@ def transform_and_evaluate(model_type, config_args, input_text):
 
 def plot_sensitivity_scores(scores, final_score):
     plt.figure(figsize=(10, 6))  # 创建一个新的图形窗口，设置大小
-    
+
     # 找到最终分数在列表中的索引
-    final_score_index = next((i for i, score in enumerate(scores) if score == final_score), None)
-    
+    final_score_index = next(
+        (i for i, score in enumerate(scores) if score == final_score), None
+    )
+
     # 如果找到了最终分数的索引，绘制两条线：红色和绿色
     if final_score_index is not None:
         # 绘制红色线（最终分数之前）
-        plt.plot(range(len(scores[:final_score_index+1])), scores[:final_score_index+1], marker="o", linestyle="-", color="#ff000080", label='Before Final Score')
+        plt.plot(
+            range(len(scores[: final_score_index + 1])),
+            scores[: final_score_index + 1],
+            marker="o",
+            linestyle="-",
+            color="#ff000080",
+            label="Before Final Score",
+        )
         # 绘制绿色线（包括最终分数及之后）
-        plt.plot(range(final_score_index, len(scores)), scores[final_score_index:], marker="o", linestyle="-", color="#00ff0080", label='After Final Score')
+        plt.plot(
+            range(final_score_index, len(scores)),
+            scores[final_score_index:],
+            marker="o",
+            linestyle="-",
+            color="#00ff0080",
+            label="After Final Score",
+        )
     else:
         # 如果没有找到最终分数，只绘制一条蓝线
-        plt.plot(range(len(scores)), scores, marker="o", linestyle="-", color="blue", label='Sensitive Scores')
-    
-    plt.title("Sensitive Score Changes Over Iterations")
+        plt.plot(
+            range(len(scores)),
+            scores,
+            marker="o",
+            linestyle="-",
+            color="blue",
+            label="Sensitive Scores",
+        )
+
+    plt.title("Sensitive Score exists in JailBreak")
     plt.xlabel("Iteration")
     plt.ylabel("Sensitive Score")
     plt.grid(True)
     plt.legend()  # 显示图例
-
+    plt.savefig(
+        "E:\\code\\Chemotherapy\\log\\evaluate_words_transfer.png", bbox_inches="tight"
+    )  # 保存图表
     # 显示图表
     plt.show()
-    
+
+
 
 # 示例用法
 if __name__ == "__main__":
@@ -357,4 +390,15 @@ if __name__ == "__main__":
     print(f"敏感分数列表: {sensitivity_scores}")
     print(f"迭代次数: {iterations}")
 
-    plot_sensitivity_scores(sensitivity_scores,final_score)
+    # 创建字典表存储反义词数据
+    if not os.path.exists("E:/code/Chemotherapy/log/transfer"):
+        os.makedirs("E:/code/Chemotherapy/log/transfer")
+    file_name = f"E:/code/Chemotherapy/log/transfer/{input_text}.json"
+
+    with open(file_name, "w", encoding="utf-8") as f:
+        json.dump(data_list, f, ensure_ascii=False, indent=4)
+
+    # 获取文件绝对路径并打印
+    file_path = os.path.abspath(file_name)
+    print(f"\nThe checked asr file has been saved to:\n{file_path}\n")
+    plot_sensitivity_scores(sensitivity_scores, final_score)

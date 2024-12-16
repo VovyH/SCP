@@ -38,7 +38,7 @@ class Config:
     mode = "test"
     # 测试模型
     test_model: str = "gpt-3.5-turbo-0613"
-    judge_model: str = "gpt-4"
+    postive_judge_model: str = "gpt-3.5-turbo-0613"
 
 
 # 示例配置实例

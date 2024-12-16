@@ -1,4 +1,4 @@
-from utils.model_utils.llm_completion_utils import chatCompletion, claudeCompletion
+from utils.model_utils.llm_completion_utils import chatCompletion, claudeCompletion,Judge_postive_Completion
 from config import config_args
 
 # 定义用于GPT模型的gpt_responses函数
@@ -58,6 +58,20 @@ def mistral_responses(config_args, model, tokenizer, text: str):
     model_output = content_after_inst.replace("</s>", "")  # 移除结束符号</s>
     
     return model_output  # 返回Mistral模型的响应
+
+# 定义用于GPT模型的gpt_responses函数
+def judge_postive_responses(Config, text: str):
+    user_input = text  # 用户输入的文本
+    user_message = {"role": "user", "content": user_input}  # 创建用户消息字典
+    messages = []  # 初始化消息列表
+    messages.append(user_message)  # 将用户消息添加到消息列表中
+    # 调用chatCompletion函数获取GPT模型的响应
+    model_output = Judge_postive_Completion(
+        messages=messages,  # 消息列表
+        config=config_args  # 配置对象
+    )
+    print(f"敏感输出内容：{model_output}\n")
+    return model_output  # 返回GPT模型的响应
 
 
 # 定义通用的get_response函数

@@ -9,6 +9,7 @@ from utils.model_utils.llm_responses_utils import get_response,judge_postive_res
 import re  # 导入正则表达式库用于字符串操作
 from config import config_args
 import os
+from utils.word_dict.drug_init_prompt import role_context
 
 # 导入测试前缀列表
 from utils.word_dict.detect_safety_problem import test_prefixes
@@ -153,6 +154,9 @@ def contains_test_prefix(config_args, input_text, prefixes=test_prefixes):
     Returns:
         bool: 是否包含测试前缀
     """
+    role_context.replace("{{## Question ##}}", input_text)
+    role_context.replace("{{## Role ##}}", "security officer")
+    role_context.replace("{{## Task ##}}", "protect people safety")
     output_text = judge_postive_responses(
         config_args, input_text
     )  # 使用get_response生成输出文本

@@ -78,6 +78,12 @@ def get_drug_input(input_text):
             print(f"未找到近义词，跳过动词 '{first_verb}'。")
         else:
             found_valid_antonym = False
+            # 7.2 遍历一级近义词
+            for synonym in synonyms:
+                # 7.3 获取每个一级近义词的近义词（二级近义词）
+                secondary_synonyms = get_synonym(synonym)
+                if secondary_synonyms:
+                    synonyms.extend(secondary_synonyms)  # 添加二级近义词到列表
 
             # 7.2 遍历VB的所有近义词
             for synonym in synonyms:
@@ -166,6 +172,8 @@ def get_drug_input(input_text):
         reverse=True,
     )
 
+    words_all = dict(words_all)
+    
     # 9. 新建数据项存储候选结果
     item_new = {}
     item_new["antonym_list"] = words_all  # 存储候选词汇

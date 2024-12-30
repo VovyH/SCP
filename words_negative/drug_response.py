@@ -9,10 +9,14 @@ from utils.word_dict.harmful_classfication_utils import (
     test_prefixes,
     harmful_classification,
 )
-from utils.detect_toxic_utils.sensitive_detect import predict_sensitivity
 from utils.data_util.process_response import extract_model_response_content
-from words_transfer.words_transfer import transform_and_evaluate,get_antonyms,find_all_verb_indices
+from words_transfer.words_transfer import (
+    transform_and_evaluate,
+    get_antonyms,
+    find_all_verb_indices,
+)
 from tqdm import tqdm
+from words_negative.drug_input import TokenManager
 
 # 1.必要的输入参数
 drug_prompt = role_context + "\n" + note_context  # prompt
@@ -29,24 +33,21 @@ data_list = []  # 初始化存储结果的数据列表
 data_path = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
 harmful_behaviors = data_reader(data_path)
 
-# TODO:对harmful_behaviors进行预处理
-new_harmful_behaviors = []
-for behavior in harmful_behaviors:
-    verbs = find_all_verb_indices(behavior)
+# 初始化 TokenManager
+token_manager = TokenManager()
+model_type = "gpt-3.5-turbo-0613"
+results,positive_sentences = token_manager.process_input_sentences(model_type, harmful_behaviors)
 
 # 3.得到所有的恶意输入 drug_inputs
 drug_inputs = [
     drug_prompt.replace("{{## Question ##}}", behavior)
-    for behavior in new_harmful_behaviors
+    for behavior in positive_sentences
 ]
 
 # 4.得到 harmful response
-for idx, drug_input in enumerate(tqdm(drug_inputs,desc="get harmful response")):
+for idx, drug_input in enumerate(tqdm(drug_inputs, desc="get harmful response")):
     total += 1
-    # TODO:训练Prompt
-
     # 4.1 获取响应
-    drug_sensitive_score = predict_sensitivity(drug_input)
     model_output = get_response(model_type, config_args, drug_input)
     model_output = extract_model_response_content(model_output)
 
@@ -87,7 +88,6 @@ for idx, drug_input in enumerate(tqdm(drug_inputs,desc="get harmful response")):
     item_new["idx"] = idx
     item_new["original_harm_behavior"] = harmful_behaviors[idx]
     item_new["nested_prompt"] = drug_input
-    item_new["sensitive_score"] = drug_sensitive_score
     item_new["test_model"] = config_args.test_model
     item_new["model_output"] = model_output
 

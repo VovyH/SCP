@@ -12,7 +12,7 @@ def gpt_responses(Config, text: str):
         messages=messages,  # 消息列表
         config=config_args  # 配置对象
     )
-    print(f"敏感输出内容：{model_output}\n")
+    print(f"输出：{model_output}\n")
     return model_output  # 返回GPT模型的响应
 
 # 定义用于Claude模型的claude_responses函数

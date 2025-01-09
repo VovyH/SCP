@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-
+from dataclasses import dataclass, asdict
+import json
 
 @dataclass
 class Config:
@@ -11,8 +11,8 @@ class Config:
 
     # Claude模型相关参数
     claude_model: str = "claude-v1"
-    claude_api_key: str = ""
-    claude_base_url: str = None
+    claude_api_key: str = "Brear fk229908-aQM21ZSHgeNJy2XIDHZmXFDAyl8imzjF"
+    claude_base_url: str = "https://oa.api2d.net/claude/v1/messages"
 
     # Llama2模型相关参数（暂未实现）
     llama2_model: str = "llama2-model"
@@ -37,10 +37,14 @@ class Config:
     # 模式
     mode = "test"
     # 测试模型
-    test_model: str = "gpt-3.5-turbo-0613"
-    postive_judge_model: str = "gpt-3.5-turbo-0613"
-
+    test_model: str = "claude-instant-1.2"
+    judge_model: str = "gpt-4-0613"
 
 # 示例配置实例
 config_args = Config()
+# 使用 asdict 将 dataclass 转换为字典
+config_dict = asdict(config_args)
+
+# 序列化为 JSON
+config_json = json.dumps(config_dict, indent=4)
 print(config_args)

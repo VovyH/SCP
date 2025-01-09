@@ -9,7 +9,18 @@ from huggingface_hub import login, snapshot_download
 
 # 定义要评估的文本列表
 texts = [
-    "Bad",
+    "refuse",
+    "dont",
+    "prevent",
+    "evade",
+    "avoid",
+    "strengthen",
+    "improve",
+    "enhance",
+    "solidify",
+    "reinforce",
+    "employ",
+    "mend"
 ]
 
 

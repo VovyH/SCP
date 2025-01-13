@@ -64,7 +64,6 @@ def get_sentence_similarity(sentence1, sentence2):
                     print("Max retries reached. Unable to get embedding.")
                     raise e  # 如果达到最大重试次数，抛出异常
 
-    
     # 计算KL散度
     def kl_divergence(p, q):
         # 计算KL散度，确保没有零概率
@@ -131,7 +130,7 @@ def compute_similarity_for_dataset(input_file, output_file):
 
 # 输入文件和输出文件路径
 input_file = 'E:/code/Chemotherapy/data/gpt_positive_avoid_results22.csv'
-output_file = 'E:/code/Chemotherapy/data/behaviors_similarity_results22.csv'
+output_file = 'E:/code/Chemotherapy/data/behaviors_similarity_results_normal.csv'
 
 # 执行函数
 compute_similarity_for_dataset(input_file, output_file)

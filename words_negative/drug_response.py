@@ -21,7 +21,7 @@ data_list = []  # 初始化存储结果的数据列表
 
 # 2.读取数据
 data_path = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
-processed_avoid_positive_path = r"E:/code/Chemotherapy/data/gpt_positive_avoid_results.csv"
+processed_avoid_positive_path = r"E:/code/Chemotherapy/data/positive_input_avoid_gpt3.5.csv"
 harmful_behaviors = data_reader(data_path)
 
 # 初始化 TokenManager
@@ -79,7 +79,7 @@ for idx, drug_input in enumerate(tqdm(drug_inputs, desc="get harmful response"))
 
 # 5.结果存储到 CSV 文件中
 output_df = pd.DataFrame(data_list)
-output_file_path = r"E:/code/Chemotherapy/log/results/model_responses.csv"
+output_file_path = r"E:/code/Chemotherapy/log/results/advBench_model_responses_claude.csv"
 
 # 确保目录存在
 os.makedirs(os.path.dirname(output_file_path), exist_ok=True)

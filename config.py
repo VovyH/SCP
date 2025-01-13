@@ -26,7 +26,7 @@ class Config:
     # 公共参数
     temperature: float = 0.7
     max_tokens: int = 256
-    retry_times: int = 3
+    retry_times: int = 10
     round_sleep: float = 1.0
     fail_sleep: float = 2.0
 
@@ -37,7 +37,7 @@ class Config:
     # 模式
     mode = "test"
     # 测试模型
-    test_model: str = "claude-instant-1.2"
+    test_model: str = "claude-2.0"
     judge_model: str = "gpt-4-0613"
 
 # 示例配置实例

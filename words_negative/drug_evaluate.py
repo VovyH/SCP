@@ -6,7 +6,7 @@ from utils.data_util.data_utils import data_reader
 import os
 from config import config_args
 from utils.word_dict.harmful_classfication_utils import test_prefixes
-from utils.word_dict.detect_safety_problem import positive_prefixes
+from utils.word_dict.detect_safety_problem import negative_prefixes
 
 test_model = config_args.test_model
 judge_model = config_args.judge_model
@@ -272,8 +272,8 @@ if __name__ == "__main__":
 
     # 文件路径配置
     origin_harmful_path = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
-    evaluate_file_path = r"E:/code/Chemotherapy/log/results/advBench_model_responses_gpt3.5.csv"
-    output_file_path = r"E:/code/Chemotherapy/log/results/advBench_evaluate_gpt3.5.csv"
+    evaluate_file_path = r"E:/code/Chemotherapy/log/results/advBench_model_responses_claude2.csv"
+    output_file_path = r"E:/code/Chemotherapy/log/results/advBench_evaluate_claude2_dict.csv"
 
     
     # 调用评估函数
@@ -281,5 +281,5 @@ if __name__ == "__main__":
         evaluate_file_path=evaluate_file_path,
         origin_harmful_path=origin_harmful_path,
         output_file_path=output_file_path,
-        test_prefixes=positive_prefixes,
+        test_prefixes=test_prefixes,
     )

@@ -91,15 +91,12 @@ def claudeCompletion(message,config: Config):
     except Exception as e:
         return f"调用API时出错: {e}"
 
-
-
 def Judge_postive_Completion(
     messages,
     config: Config,
 ):
     """调用 GPT 模型进行正面判断"""
     return chatCompletion(messages, config)
-
 
 def JudgeCompletion(
     messages,

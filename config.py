@@ -37,8 +37,9 @@ class Config:
     # 模式
     mode = "test"
     # 测试模型
-    test_model: str = "claude-2.0"
+    test_model: str = "gpt-3.5-turbo-0613"
     judge_model: str = "gpt-4-0613"
+    refine_model: str = test_model
 
 # 示例配置实例
 config_args = Config()

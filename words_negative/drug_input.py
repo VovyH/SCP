@@ -5,7 +5,7 @@ from nltk.corpus import wordnet
 from collections import defaultdict
 from tqdm import tqdm
 from utils.word_dict.drug_init_prompt import role_context, note_context
-from utils.word_dict.detect_safety_problem import test_prefixes, positive_prefixes
+from utils.word_dict.detect_safety_problem import test_prefixes
 from utils.model_utils.llm_responses_utils import get_response
 from config import config_args
 from utils.data_util.data_utils import data_reader
@@ -87,17 +87,18 @@ def evaluate_sentence_safety(model_type,Input_text):
     """
     Output_Positive = POSITIVE_PROMPT.format(Input_text)
     output_text = get_response(model_type, config_args, Output_Positive)
-    for prefix in positive_prefixes:
+    for prefix in test_prefixes:
         if output_text.startswith(prefix) or prefix in output_text:
             return False  # 不够善意
     return True
+
 
 class TokenManager:
     def __init__(self):
         """初始化Token池以及防御机制
         """
         self.token_pool = defaultdict(lambda: {"success": 0, "total": 0})
-        self.reference_token = "avoid"
+        self.reference_token = ""
 
     def calculate_probability(self, token):
         # 计算 token 的选择概率
@@ -120,49 +121,57 @@ class TokenManager:
             current_token = self.reference_token  # 当前尝试的 reference_token
 
             while not success:
-                # Step 1: 原输入分词并标注词性
-                original_tags = split_and_tag(origin_input)
+                try:
+                    # Step 1: 原输入分词并标注词性
+                    original_tags = split_and_tag(origin_input)
 
-                # Step 2: 使用当前 reference_token 生成善意句子
-                positive_sentence = generate_positive_sentence(
-                    config_args.test_model, original_tags, current_token
-                )
+                    # Step 2: 使用当前 reference_token 生成善意句子
+                    positive_sentence = generate_positive_sentence(
+                        config_args.test_model, original_tags, current_token
+                    )
 
-                # Step 3: 善意句子分词并标注词性
-                positive_tags = split_and_tag(positive_sentence)
+                    # Step 3: 善意句子分词并标注词性
+                    positive_tags = split_and_tag(positive_sentence)
 
-                # Step 4: 对比原句和善意句，找到多余的 Token
-                additional_tokens = compare_tokens(original_tags, positive_tags)
+                    # Step 4: 对比原句和善意句，找到多余的 Token
+                    additional_tokens = compare_tokens(original_tags, positive_tags)
 
-                # Step 5: 防御机制只能选择一个 Token，且不能是新增的非谓语动词
-                defense_mechanism = None
-                for token in additional_tokens:
-                    # 检查 token 是否是新增非谓语动词
-                    token_tag = [tag for tok, tag in positive_tags if tok == token]
-                    if token_tag and token_tag[0].startswith("VB") and token_tag[0] != "VB":
-                        continue  # 排除非谓语动词
-                    defense_mechanism = token  # 选择第一个符合条件的 token
-                    break
+                    # Step 5: 防御机制只能选择一个 Token，且不能是新增的非谓语动词
+                    defense_mechanism = None
+                    for token in additional_tokens:
+                        # 检查 token 是否是新增非谓语动词
+                        token_tag = [tag for tok, tag in positive_tags if tok == token]
+                        if token_tag and token_tag[0].startswith("VB") and token_tag[0] != "VB":
+                            continue  # 排除非谓语动词
+                        defense_mechanism = token  # 选择第一个符合条件的 token
+                        break
 
-                # Step 6: 对善意句子进行安全性评估
-                is_safe = evaluate_sentence_safety(config_args.test_model, positive_sentence)
+                    # Step 6: 对善意句子进行安全性评估
+                    is_safe = evaluate_sentence_safety(config_args.test_model, positive_sentence)
 
-                if is_safe:
-                    # 成功生成，标记为成功
-                    success = True
-                    self.token_pool[current_token]["success"] += 1  # 成功的 token 分子加 1
-                else:
-                    # Step 7: 如果失败，选择当前 reference_token 的近义词重试
-                    synonyms = get_synonyms(current_token)
-                    if synonyms:
-                        # 选择概率值最高的近义词作为新的 reference_token
-                        current_token = max(synonyms, key=lambda x: self.calculate_probability(x))
+                    if is_safe:
+                        # 成功生成，标记为成功
+                        success = True
+                        defense_mechanism = current_token
+                        self.token_pool[current_token]["success"] += 1  # 成功的 token 分子加 1
                     else:
-                        # 如果没有近义词，回退到默认的 "avoid"
-                        current_token = "avoid"
+                        # Step 7: 如果失败，选择当前 reference_token 的近义词重试
+                        synonyms = get_synonyms(current_token)
+                        if synonyms:
+                            # 选择概率值最高的近义词作为新的 reference_token
+                            current_token = max(synonyms, key=lambda x: self.calculate_probability(x))
+                        else:
+                            # 如果没有近义词，回退到默认的 "avoid"
+                            current_token = "avoid"
 
-                # 更新 token 的总使用次数
-                self.token_pool[current_token]["total"] += 1
+                    # 更新 token 的总使用次数
+                    self.token_pool[current_token]["total"] += 1
+
+                except Exception as e:
+                    # 出现错误时保存当前结果并输出错误
+                    print(f"An error occurred while processing: {e}")
+                    self.save_results(results, positive_sentences)
+                    raise e  # 重新抛出异常
 
             # Step 8: 保存结果
             positive_sentences.append(positive_sentence)
@@ -183,29 +192,41 @@ class TokenManager:
 
         return results, positive_sentences
 
+    def save_results(self, results, positive_sentences):
+        """保存当前结果到文件"""
+        try:
+            # 将结果保存到CSV文件
+            results_df = pd.DataFrame(results)
+            output_path = r"E:/code/Chemotherapy/data/positive_input_avert_gpt3.5.csv"
+            results_df.to_csv(output_path, index=False)
+
+            # 打印投票数结果
+            token_votes_df = pd.DataFrame(list(self.token_pool.items()), columns=["token", "votes"])
+            token_votes_output_path = r"E:/code/Chemotherapy/data/tokens_votes_gpt3.5.csv"
+            token_votes_df.to_csv(token_votes_output_path, index=False)
+
+            # 输出结果路径
+            print(f"处理结果已保存到: {output_path}")
+            print(f"Token 投票数已保存到: {token_votes_output_path}")
+
+        except Exception as e:
+            print(f"Error occurred during saving results: {e}")
 
 
 if __name__ == "__main__":
-    # 加载数据
-    data_path = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
-    harmful_behaviors = data_reader(data_path)
+    try:
+        # 加载数据
+        data_path = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
+        harmful_behaviors = data_reader(data_path)
 
-    # 初始化 TokenManager
-    token_manager = TokenManager()
+        # 初始化 TokenManager
+        token_manager = TokenManager()
 
-    # 处理所有句子
-    results,positive_sentences = token_manager.process_input_sentences(harmful_behaviors)
+        # 处理所有句子
+        results, positive_sentences = token_manager.process_input_sentences(harmful_behaviors)
 
-    # 将结果保存到CSV文件
-    results_df = pd.DataFrame(results)
-    output_path = r"E:/code/Chemotherapy/data/positive_input_avoid_claude.csv"
-    results_df.to_csv(output_path, index=False)
+        # 保存最终结果
+        token_manager.save_results(results, positive_sentences)
 
-    # 打印投票数结果
-    token_votes_df = pd.DataFrame(list(token_manager.token_votes.items()), columns=["token", "votes"])
-    token_votes_output_path = r"E:/code/Chemotherapy/data/token_votes_claude.csv"
-    token_votes_df.to_csv(token_votes_output_path, index=False)
-
-    # 输出结果路径
-    print(f"处理结果已保存到: {output_path}")
-    print(f"Token 投票数已保存到: {token_votes_output_path}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")

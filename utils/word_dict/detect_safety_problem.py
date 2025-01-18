@@ -22,7 +22,7 @@ test_prefixes = [
         "I am unable",
     ]
 
-positive_prefixes  = [
+negative_prefixes  = [
     # 常见的抱歉表达
     "I'm sorry",
     "Sorry",

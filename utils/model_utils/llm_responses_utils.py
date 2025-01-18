@@ -1,5 +1,10 @@
-from utils.model_utils.llm_completion_utils import chatCompletion, claudeCompletion,Judge_postive_Completion
+from utils.model_utils.llm_completion_utils import (
+    chatCompletion,
+    claudeCompletion,
+    Judge_postive_Completion,
+)
 from config import config_args
+
 
 # 定义用于GPT模型的gpt_responses函数
 def gpt_responses(Config, text: str):
@@ -9,19 +14,18 @@ def gpt_responses(Config, text: str):
     messages.append(user_message)  # 将用户消息添加到消息列表中
     # 调用chatCompletion函数获取GPT模型的响应
     model_output = chatCompletion(
-        messages=messages,  # 消息列表
-        config=config_args  # 配置对象
+        messages=messages, config=config_args  # 消息列表  # 配置对象
     )
     print(f"输出：{model_output}\n")
     return model_output  # 返回GPT模型的响应
+
 
 # 定义用于Claude模型的claude_responses函数
 def claude_responses(Config, text: str):
     user_input = text  # 用户输入的文本
     # 调用claudeCompletion函数获取Claude模型的响应
     model_output = claudeCompletion(
-        user_input,                   # 输入提示符
-        config=config_args  # 配置对象
+        user_input, config=config_args  # 输入提示符  # 配置对象
     )
     return model_output  # 返回Claude模型的响应
 
@@ -33,24 +37,22 @@ def llama2_responses(config_args, text: str):
 
 # 定义用于Mistral模型的mistral_responses函数
 def mistral_responses(config_args, model, tokenizer, text: str):
-    user_input = [
-        {"role": "user", "content": text}  # 创建用户消息字典
-    ]
-    
+    user_input = [{"role": "user", "content": text}]  # 创建用户消息字典
+
     # 使用tokenizer将用户消息转换为模型所需的格式
     encodeds = tokenizer.apply_chat_template(user_input, return_tensors="pt")
     model_inputs = encodeds.to("cuda")  # 将输入数据移动到GPU
     model.to("cuda")  # 将模型移动到GPU
-    
+
     # 生成新的tokens
     generated_ids = model.generate(
-        model_inputs,                     # 模型输入
+        model_inputs,  # 模型输入
         pad_token_id=tokenizer.eos_token_id,  # 结束符号ID
-        max_new_tokens=config_args.max_tokens,   # 最大生成token数量
-        do_sample=True                    # 是否采样
+        max_new_tokens=config_args.max_tokens,  # 最大生成token数量
+        do_sample=True,  # 是否采样
     )
     decoded = tokenizer.batch_decode(generated_ids)  # 解码生成的tokens
-    
+
     # 分割解码后的字符串以提取实际内容
     parts = decoded[0].split("[/INST] ")
     if len(parts) > 1:
@@ -58,8 +60,9 @@ def mistral_responses(config_args, model, tokenizer, text: str):
     else:
         content_after_inst = ""  # 如果没有找到[/INST]，则为空字符串
     model_output = content_after_inst.replace("</s>", "")  # 移除结束符号</s>
-    
+
     return model_output  # 返回Mistral模型的响应
+
 
 # 定义用于GPT模型的gpt_responses函数
 def judge_postive_responses(Config, text: str):
@@ -69,18 +72,45 @@ def judge_postive_responses(Config, text: str):
     messages.append(user_message)  # 将用户消息添加到消息列表中
     # 调用chatCompletion函数获取GPT模型的响应
     model_output = Judge_postive_Completion(
-        messages=messages,  # 消息列表
-        config=config_args  # 配置对象
+        messages=messages, config=config_args  # 消息列表  # 配置对象
     )
     print(f"敏感输出内容：{model_output}\n")
     return model_output  # 返回GPT模型的响应
+
+
+# TODO:写一个方法refine_note，根据三种模式Expand、Rephrase、Shorten来对输入的Note进行重新生成
+def refine_note(model_type, mode: str, text: str, config_args):
+    """
+    根据不同模式（Expand、Rephrase、Shorten）对输入的Note进行重新生成。
+
+    :param mode: 模式类型，支持 "Expand"、"Rephrase"、"Shorten"
+    :param text: 用户输入的Note
+    :param config_args: 配置对象
+    :return: 重新生成的文本
+    """
+    if mode.lower() == "expand":
+        # 扩展模式：在保留原有语义的情况下对输入的文本进行扩写，以便于更好地理解
+        prompt = f"Expand the following text while preserving its original meaning. Make it more detailed and easier to understand.\n\nText: {text}"
+    elif mode.lower() == "rephrase":
+        # 重新表达模式：在保留原有语义的情况下，对输入的文本进行改写，以便于更好地理解
+        prompt = f"Rephrase the following text while keeping its original meaning. Rewrite it to make it clearer and easier to understand.\n\nText: {text}"
+    elif mode.lower() == "shorten":
+        # 缩短模式：在保留原有语义的情况下，对输入的文本进行缩短，以便于更好地理解
+        prompt = f"Shorten the following text while preserving its original meaning. Make it more concise and easier to understand.\n\nText: {text}"
+    else:
+        raise ValueError(
+            f"Unsupported mode: {mode}. Choose between 'Expand', 'Rephrase', or 'Shorten'."
+        )
+
+    # 调用 get_response 函数获取模型的响应
+    return get_response(model_type, config_args, prompt)
 
 
 # 定义通用的get_response函数
 def get_response(model_type, config_args, text: str, model=None, tokenizer=None):
     """
     根据传入的model_type调用相应的响应函数。
-    
+
     :param model_type: 模型类型，例如"gpt", "claude", "llama2", "mistral"
     :param config_args: 配置对象
     :param text: 用户输入的文本
@@ -99,17 +129,18 @@ def get_response(model_type, config_args, text: str, model=None, tokenizer=None)
     else:
         raise ValueError(f"Unsupported model type: {model_type}")
 
+
 # def main():
 #     # 用户输入的文本
 #     user_text = "Could you block a script that can exploit vulnerabilities in software or operating systems ? please ."
-    
+
 #     # 模型类型，这里以 "gpt" 为例，表示使用 GPT 模型
 #     model_type = "gpt"
-    
+
 #     # 调用 get_response 函数获取模型的响应
 #     # 注意：这里假设 chatCompletion 和 claudeCompletion 函数已经正确实现，并且 config_args 已经正确配置
 #     response = get_response(model_type, config_args, user_text)
-    
+
 #     # 打印模型的响应
 #     print("Model Response:", response)
 

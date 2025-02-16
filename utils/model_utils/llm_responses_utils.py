@@ -4,6 +4,7 @@ from utils.model_utils.llm_completion_utils import (
     Judge_postive_Completion,
 )
 from config import config_args
+import requests
 
 
 # 定义用于GPT模型的gpt_responses函数
@@ -30,9 +31,91 @@ def claude_responses(Config, text: str):
     return model_output  # 返回Claude模型的响应
 
 
-# 定义用于Llama2模型的llama2_responses函数
-def llama2_responses(config_args, text: str):
-    pass  # Llama2模型的具体实现尚未完成
+# 定义用于Llama3模型的llama3_responses函数
+def llama3_responses(Config, text: str):
+    # 用户输入的文本
+    user_input = text  
+    # 创建用户消息字典
+    user_message = {"role": "user", "content": user_input}  
+    # 初始化消息列表
+    messages = [user_message]  
+
+    # 设置payload内容
+    payload = {
+        "model": "meta-llama/Meta-Llama-3.1-405B-Instruct",
+        "messages": messages,
+        "stream": False,
+        "max_tokens": 1024,
+        "stop": ["null"],
+        "temperature": 0.7,
+        "top_p": 0.7,
+        "top_k": 50,
+        "frequency_penalty": 0.5,
+        "n": 1,
+        "response_format": {"type": "text"}
+    }
+
+    # 设置headers
+    headers = {
+        "Authorization": "Bearer sk-kifqepgmrmlstabhxlmxrylkppvcppumtvwcdbwajgotuvvk",  # 请替换为实际的token
+        "Content-Type": "application/json"
+    }
+
+    # 使用requests发送POST请求
+    response = requests.request("POST", "https://api.siliconflow.cn/v1/chat/completions", json=payload, headers=headers)
+    
+    # 将返回的响应内容解析为JSON
+    response_json = response.json()  # 解析返回的JSON格式响应
+
+    # 提取content字段
+    content = response_json.get("choices", [{}])[0].get("message", {}).get("content", "")
+    content = str(content)
+    # 打印并返回模型输出
+    # print(f"输出：{content}\n")
+    return content  # 返回GPT模型的响应
+
+# 定义用于deepseek模型的deepseek_responses函数
+def deepseek_responses(Config, text: str):
+    # 用户输入的文本
+    user_input = text  
+    # 创建用户消息字典
+    user_message = {"role": "user", "content": user_input}  
+    # 初始化消息列表
+    messages = [user_message]  
+
+    # 设置payload内容
+    payload = {
+        "model": "Pro/deepseek-ai/DeepSeek-R1",
+        "messages": messages,
+        "stream": False,
+        "max_tokens": 1024,
+        "stop": ["null"],
+        "temperature": 0.7,
+        "top_p": 0.7,
+        "top_k": 50,
+        "frequency_penalty": 0.5,
+        "n": 1,
+        "response_format": {"type": "text"}
+    }
+
+    # 设置headers
+    headers = {
+        "Authorization": "Bearer sk-kifqepgmrmlstabhxlmxrylkppvcppumtvwcdbwajgotuvvk",  # 请替换为实际的token
+        "Content-Type": "application/json"
+    }
+
+    # 使用requests发送POST请求
+    response = requests.request("POST", "https://api.siliconflow.cn/v1/chat/completions", json=payload, headers=headers)
+    
+    # 将返回的响应内容解析为JSON
+    response_json = response.json()  # 解析返回的JSON格式响应
+
+    # 提取content字段
+    content = response_json.get("choices", [{}])[0].get("message", {}).get("content", "")
+    content = str(content)
+    # 打印并返回模型输出
+    # print(f"输出：{content}\n")
+    return content  # 返回GPT模型的响应
 
 
 # 定义用于Mistral模型的mistral_responses函数
@@ -79,7 +162,7 @@ def judge_postive_responses(Config, text: str):
 
 
 # TODO:写一个方法refine_note，根据三种模式Expand、Rephrase、Shorten来对输入的Note进行重新生成
-def refine_note(model_type, mode: str, text: str, config_args):
+def refine_note(model_type, mode: str, text: str,reason: str, config_args):
     """
     根据不同模式（Expand、Rephrase、Shorten）对输入的Note进行重新生成。
 
@@ -90,13 +173,22 @@ def refine_note(model_type, mode: str, text: str, config_args):
     """
     if mode.lower() == "expand":
         # 扩展模式：在保留原有语义的情况下对输入的文本进行扩写，以便于更好地理解
-        prompt = f"Expand the following text while preserving its original meaning. Make it more detailed and easier to understand.\n\nText: {text}"
+        prompt = f"""Your task is to rephrase the provided text in a way that makes it more acceptable for the large language model to process.  The reason for the previous rejection was {{## REASON ##}}.  Please expand the following text {{## TEXT ##}} while preserving its original meaning and making it more detailed and easier to understand.\n\n
+        {{## TEXT ##}}: {text}
+        {{## REASON ##}} {reason}
+        """
     elif mode.lower() == "rephrase":
         # 重新表达模式：在保留原有语义的情况下，对输入的文本进行改写，以便于更好地理解
-        prompt = f"Rephrase the following text while keeping its original meaning. Rewrite it to make it clearer and easier to understand.\n\nText: {text}"
+        prompt = f"""Your task is to rephrase the provided text in a way that makes it more acceptable for the large language model to process.  The reason for the previous rejection was {{## REASON ##}}.  Please rephrase the following text {{## TEXT ##}} while preserving its original meaning and making it clearer and easier to understand.\n\n
+        {{## TEXT ##}}: {text}
+        {{## REASON ##}} {reason}
+        """
     elif mode.lower() == "shorten":
         # 缩短模式：在保留原有语义的情况下，对输入的文本进行缩短，以便于更好地理解
-        prompt = f"Shorten the following text while preserving its original meaning. Make it more concise and easier to understand.\n\nText: {text}"
+        prompt = f"""Your task is to shorten the provided text in a way that makes it more acceptable for the large language model to process.  The reason for the previous rejection was {{## REASON ##}}.  Please shorten the following text {{## TEXT ##}} while preserving its original meaning and making it more concise and easier to understand.\n\n
+        {{## TEXT ##}}: {text}
+        {{## REASON ##}} {reason}
+        """
     else:
         raise ValueError(
             f"Unsupported mode: {mode}. Choose between 'Expand', 'Rephrase', or 'Shorten'."
@@ -122,8 +214,10 @@ def get_response(model_type, config_args, text: str, model=None, tokenizer=None)
         return gpt_responses(config_args, text)
     elif "claude" in model_type.lower():
         return claude_responses(config_args, text)
-    elif "llama2" in model_type.lower():
-        return llama2_responses(config_args, text)
+    elif "llama3" in model_type.lower():
+        return llama3_responses(config_args, text)
+    elif "deepseek" in model_type.lower():
+        return deepseek_responses(config_args, text)
     elif "mistral" in model_type.lower():
         return mistral_responses(config_args, model, tokenizer, text)
     else:

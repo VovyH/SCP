@@ -31,7 +31,7 @@ output_file_path = f"E:/code/Chemotherapy/log/results/advBench_model_responses_{
 
 # 2.读取数据
 data_path = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
-processed_avoid_positive_path = r"E:/code/Chemotherapy/data/positive_input_avoid_gpt3.5.csv"
+processed_avoid_positive_path = r"E:/code/Chemotherapy/data/positive_input_deepseek.csv"
 harmful_behaviors = data_reader(data_path)
 
 # 1.初始化 TokenManager
@@ -73,16 +73,20 @@ for idx, (drug_input, behavior) in enumerate(tqdm(zip(drug_inputs, positive_sent
         try:
             model_output = get_response(config_args.test_model, config_args, drug_input)
             final_output = extract_model_response_content(model_output)
-            
+            if final_output is None:
+                final_output = model_output
+                
             # 重新得到 note 内容进行组合
-            if any(final_output.startswith(prefix) for prefix in test_prefixes):
+            if any(model_output.startswith(prefix) for prefix in test_prefixes):
                 mode = choose_mode()
-                new_note_context = refine_note(config_args.refine_model,mode,config_args,note_context)
+                new_note_context = refine_note(config_args.refine_model,mode,note_context,model_output,config_args)
                 drug_prompt = role_context + "\n" + new_note_context  # prompt
-                drug_prompt.replace("{{## Question ##}}", behavior)
+                drug_input = drug_prompt.replace("{{## Question ##}}", behavior)
                 model_output = get_response(config_args.test_model, config_args, drug_input)
                 final_output = extract_model_response_content(model_output)
-                
+                if final_output is None:
+                    final_output = model_output
+                    
                 # 检查新的 final_output 是否包含负面前缀
                 if not any(final_output.startswith(prefix) for prefix in negative_prefixes):
                     # 如果新的 final_output 不包含负面前缀，则增加选择模式的成功次数
@@ -117,7 +121,7 @@ for idx, (drug_input, behavior) in enumerate(tqdm(zip(drug_inputs, positive_sent
 
 # 5.结果存储到 CSV 文件中
 output_df = pd.DataFrame(data_list)
-# output_file_path = r"E:/code/Chemotherapy/log/results/advBench_model_responses_claude.csv"
+output_file_path = r"E:/code/Chemotherapy/log/results/advBench_model_responses_deepseek_R1.csv"
 
 # 确保目录存在
 os.makedirs(os.path.dirname(output_file_path), exist_ok=True)

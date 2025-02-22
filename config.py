@@ -10,9 +10,9 @@ class Config:
     gpt_base_url: str = "https://openai.api2d.net/v1"
 
     # Claude模型相关参数
-    claude_model: str = "claude-v1"
-    claude_api_key: str = "Brear fk229908-aQM21ZSHgeNJy2XIDHZmXFDAyl8imzjF"
-    claude_base_url: str = "https://oa.api2d.net/claude/v1/messages"
+    claude_model: str = "claude-3-5-sonnet"
+    claude_api_key: str = "fk229908-aQM21ZSHgeNJy2XIDHZmXFDAyl8imzjF"
+    claude_base_url: str = "https://oa.api2d.net/claude"
 
     # Llama2模型相关参数（暂未实现）
     llama2_model: str = "llama2-model"
@@ -37,9 +37,15 @@ class Config:
     # 模式
     mode = "test"
     # 测试模型
-    test_model: str = "deepseek"
-    judge_model: str = "gpt-4-0613"
+    test_model: str = "mistral"
+    judge_model: str = "gpt-4o"
     refine_model: str = test_model
+    
+    # 参数
+    top_k = 50
+    max_tokens = 1024
+    repetition_penalty = 1.0
+    temperature = 0.6
 
 # 示例配置实例
 config_args = Config()

@@ -121,7 +121,7 @@ for idx, (drug_input, behavior) in enumerate(tqdm(zip(drug_inputs, positive_sent
 
 # 5.结果存储到 CSV 文件中
 output_df = pd.DataFrame(data_list)
-output_file_path = r"E:/code/Chemotherapy/log/results/advBench_model_responses_deepseek_R1.csv"
+output_file_path = f"E:/code/Chemotherapy/log/results/advBench_model_responses_{config_args.test_model}.csv"
 
 # 确保目录存在
 os.makedirs(os.path.dirname(output_file_path), exist_ok=True)

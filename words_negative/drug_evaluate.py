@@ -272,12 +272,12 @@ if __name__ == "__main__":
 
     # 文件路径配置
     origin_harmful_path = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
-    evaluate_file_path = r"E:/code/Chemotherapy/log/results/advBench_model_responses_llama3_405B.csv"
-    output_file_path = r"E:/code/Chemotherapy/log/results/advBench_evaluate_llama3_405B_dict.csv"
+    evaluate_file_path = f"E:/code/Chemotherapy/log/results/advBench_model_responses_{config_args.test_model}.csv"
+    output_file_path = f"E:/code/Chemotherapy/log/results/advBench_evaluate_{config_args.test_model}_gpt.csv"
 
     
     # 调用评估函数
-    evaluate_prefixes(
+    evaluate_harmful_content(
         evaluate_file_path=evaluate_file_path,
         origin_harmful_path=origin_harmful_path,
         output_file_path=output_file_path,

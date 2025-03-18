@@ -5,9 +5,9 @@ import json
 class Config:
 
     # GPT模型相关参数
-    gpt_model: str = "gpt-4o"
-    gpt_api_key: str = "fk229908-aQM21ZSHgeNJy2XIDHZmXFDAyl8imzjF"
-    gpt_base_url: str = "https://openai.api2d.net/v1"
+    gpt_model: str = "gpt-4-0613"
+    gpt_api_key: str = "sk-Entan08ZP4morw94Ac11504946F4453cBa58Cd7360Ae5eE2"
+    gpt_base_url: str = "https://api.mixrai.com/v1/chat/completions"
 
     # Claude模型相关参数
     claude_model: str = "claude-3-5-sonnet"
@@ -33,12 +33,12 @@ class Config:
     # 数据集和设备相关参数
     devices: str = "0"
     # 数据集路径
-    data_path: str = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
+    data_path: str = r"E:/我的论文和代码/Chemotherapy/data/harmful_behaviors.csv"
     # 模式
     mode = "test"
     # 测试模型
-    test_model: str = "mistral"
-    judge_model: str = "gpt-4o"
+    test_model: str = "gpt-4-0613"
+    judge_model: str = "gpt-4"
     refine_model: str = test_model
     
     # 参数

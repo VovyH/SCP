@@ -193,9 +193,9 @@ def evaluate_prefixes(
     # return count, proportion, data_list
 
 
-def evaluate_prefixes(
-    evaluate_file_path, origin_harmful_path, output_file_path, test_prefixes
-):
+# def evaluate_prefixes(
+#     evaluate_file_path, origin_harmful_path, output_file_path, test_prefixes
+# ):
     """
     评估 CSV 文件中每行的输出是否包含指定的前缀列表。
     """
@@ -271,13 +271,13 @@ def evaluate_prefixes(
 if __name__ == "__main__":
 
     # 文件路径配置
-    origin_harmful_path = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
-    evaluate_file_path = f"E:/code/Chemotherapy/log/results/advBench_model_responses_{config_args.test_model}.csv"
-    output_file_path = f"E:/code/Chemotherapy/log/results/advBench_evaluate_{config_args.test_model}_gpt.csv"
+    origin_harmful_path = r"E:/我的论文和代码/Chemotherapy/data/harmful_behaviors.csv"
+    evaluate_file_path = f"E:/我的论文和代码/Chemotherapy/log/results/advBench_model_responses_{config_args.test_model}.csv"
+    output_file_path = f"E:/我的论文和代码/Chemotherapy/log/results/advBench_evaluate_{config_args.test_model}_gpt.csv"
 
     
     # 调用评估函数
-    evaluate_harmful_content(
+    evaluate_prefixes(
         evaluate_file_path=evaluate_file_path,
         origin_harmful_path=origin_harmful_path,
         output_file_path=output_file_path,

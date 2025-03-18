@@ -322,7 +322,7 @@ class TokenManager:
         try:
             # 将结果保存到CSV文件
             results_df = pd.DataFrame(results)
-            output_path = r"E:/code/Chemotherapy/data/positive_input_gpt4.csv"
+            output_path = r"E:/我的论文和代码/Chemotherapy/data/positive_input_gpt4.csv"
             results_df.to_csv(output_path, index=False)
 
             # 打印投票数结果
@@ -341,7 +341,7 @@ class TokenManager:
 if __name__ == "__main__":
     try:
         # 加载数据
-        data_path = r"E:/code/Chemotherapy/data/harmful_behaviors.csv"
+        data_path = r"E:/我的论文和代码/Chemotherapy/data/harmful_behaviors.csv"
         harmful_behaviors = data_reader(data_path)
 
         # 初始化 TokenManager

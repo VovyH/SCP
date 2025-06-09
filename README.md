@@ -48,16 +48,3 @@ To ensure the fairness of the experiments, we set the temperature to 0.0 for all
 └── docs/           # Experimental result reports (to be added)
 ```
 
-## 👬Citation
-Please cite our paper if you use the code or data in this repository.
-```
-@misc{wu2025sugarcoatedpoisonbenigngeneration,
-      title={Sugar-Coated Poison: Benign Generation Unlocks LLM Jailbreaking}, 
-      author={Yu-Hang Wu and Yu-Jie Xiong and Hao Zhang and Jia-Chen Zhang and Zheng Zhou},
-      year={2025},
-      eprint={2504.05652},
-      archivePrefix={arXiv},
-      primaryClass={cs.CR},
-      url={https://arxiv.org/abs/2504.05652}, 
-}
-```

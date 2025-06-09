@@ -6,15 +6,15 @@ class Config:
 
     # GPT模型相关参数
     gpt_model: str = "gpt-4-0613"
-    gpt_api_key: str = "sk-Entan08ZP4morw94Ac11504946F4453cBa58Cd7360Ae5eE2"
-    gpt_base_url: str = "https://api.mixrai.com/v1/chat/completions"
+    gpt_api_key: str = "xxx"
+    gpt_base_url: str = "https://openai.api2d.net/v1"
 
     # Claude模型相关参数
     claude_model: str = "claude-3-5-sonnet"
-    claude_api_key: str = "fk229908-aQM21ZSHgeNJy2XIDHZmXFDAyl8imzjF"
+    claude_api_key: str = "xxxxF"
     claude_base_url: str = "https://oa.api2d.net/claude"
 
-    # Llama2模型相关参数（暂未实现）
+    # Llama2模型相关参数
     llama2_model: str = "llama2-model"
     llama2_api_key: str = ""
     llama2_base_url: str = None
@@ -33,19 +33,19 @@ class Config:
     # 数据集和设备相关参数
     devices: str = "0"
     # 数据集路径
-    data_path: str = r"E:/我的论文和代码/Chemotherapy/data/harmful_behaviors.csv"
+    data_path: str = r"xxxx"
     # 模式
     mode = "test"
     # 测试模型
-    test_model: str = "gpt-4-0613"
-    judge_model: str = "gpt-4"
+    test_model: str = "claude-3-5-sonnet-20240620"
+    judge_model: str = "gpt-4-0613"
     refine_model: str = test_model
     
     # 参数
     top_k = 50
     max_tokens = 1024
     repetition_penalty = 1.0
-    temperature = 0.6
+    temperature = 0.0
 
 # 示例配置实例
 config_args = Config()

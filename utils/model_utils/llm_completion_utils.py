@@ -48,7 +48,6 @@ def chatCompletion(messages, config: Config):
 
     return model_output
 
-
 def gptCompletion(messages, config: Config):
     """调用 OpenAI API 获取聊天补全结果"""
     url = 'https://api.mixrai.com/v1/chat/completions'
@@ -144,6 +143,35 @@ def gptCompletion(messages, config: Config):
     
     return "达到最大重试次数，请求失败"  # 如果所有重试都失败
 
+import json
+
+def extract_text_from_event_stream(data):
+    """
+    从事件流中提取所有生成的文本内容。
+    
+    :param data: 事件流的字符串内容。
+    :return: 完整的生成文本。
+    """
+    lines = data.strip().split('\n\n')  # 按双换行符分割事件
+    text_parts = []
+
+    for line in lines:
+        if line.startswith('event: content_block_delta'):
+            # 提取内容块增量事件中的文本
+            data_start = line.find('data: ') + 6
+            try:
+                event_data = json.loads(line[data_start:])
+                if 'delta' in event_data and 'text' in event_data['delta']:
+                    text_parts.append(event_data['delta']['text'])
+            except json.JSONDecodeError:
+                # 如果解析失败，跳过当前行
+                continue
+
+    # 将所有文本片段拼接成一个完整的字符串
+    full_text = ''.join(text_parts)
+    return full_text
+
+
 def claudeCompletion(message,config: Config):
     """
     调用 Claude API 获取讲笑话的响应，并返回处理后的完整笑话。
@@ -177,10 +205,10 @@ def claudeCompletion(message,config: Config):
         data = res.read().decode("utf-8")
         
         # 提取所有的 text 字段内容
-        text_fragments = re.findall(r'"text":"(.*?)"', data)
-        
+        # text_fragments = re.findall(r'"text":"(.*?)"', data)
+        text = extract_text_from_event_stream(data)
         # 合并 text 内容
-        combined_text = "".join(text_fragments)
+        combined_text = "".join(text)
         
         # 返回处理后的内容
         return combined_text
@@ -224,7 +252,7 @@ def JudgeCompletion(
             break  # 成功后退出循环
         except Exception as e:
             print(f"Retry 1 min failed for {model}: {e}")
-            time.sleep(300)  # 重试前等待一段时间
+            time.sleep(60)  # 重试前等待一段时间
 
     # 如果所有尝试均失败
     if response is None:

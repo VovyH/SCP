@@ -1,17 +1,63 @@
+# 💊 Sugar-Coated Poison: Benign Generation Unlocks LLM Jailbreaking
 
-### 💊Sugar-Coated Poison: Benign Generation Unlocks LLM Jailbreaking
-This repository contains the implementation details of SCP and POSD to assess the vulnerability of current large models to content generation. At the same time, in order to better show the effect of our work, the complete experimental results of some model sites are provided in the repository.(Note: The current code structure is slightly messy, the code will be adjusted and updated in the future, so as to facilitate the reproduction of subsequent research.)
-#### DTD
-We first find a phenomenon that as the large model generates more and more content, it is more vulnerable to malicious attacks to jailbreak. Figure 1 shows the change of attention to the head and tail of the cue word as more and more content is generated. Figure 2 shows the uneven degree of model attention on the generated content, that is, the GINI coefficient exceeds, The more the model focuses on the tail of the output.
-![alt text](image.png)
-![alt text](image-1.png)
-- **Motivation:** Therefore, we propose a jailbreak attack paradigm based on large model generation, which makes the large model output Benign content related to malicious problems through the header hint word (Benign), and then uses adversarial reasoning hint words to generate malicious content related to malicious problems.
-#### SCP
-![alt text](image-2.png)
-#### Structure
-```  
-├── words_negative/       # SCP attack implementation details  
-├── defense/            # POSD defense implementation + experimental results  
-├── config/             # Unified model and dataset configurations  
-└── docs/               # Experimental result reports (to be added)  
-```  
+This repository provides the implementation details for **SCP** and **POSD** to evaluate the vulnerability of large language models (LLMs) to content generation attacks. We also include comprehensive experimental results for various models to demonstrate the effectiveness of our approach.
+
+> **Note**: The current code structure is under refinement. Future updates will streamline the codebase to facilitate easier reproduction for further research.
+
+## 💡DTD
+
+Our research identifies a key phenomenon: as LLMs generate more content, they become increasingly susceptible to jailbreaking attacks. This vulnerability arises due to shifts in model attention:
+
+- **Figure 1**: Illustrates the change in attention distribution between the head and tail of the prompt as content generation increases.
+- **Figure 2**: Shows the uneven attention allocation, measured by the Gini coefficient, indicating a stronger focus on the tail of the output as generation progresses.
+
+<div style="display: flex; justify-content: space-between; gap: 10px;">
+  <img src="image.png" alt="Attention Distribution" style="width: 48%; max-width: 300px; height: auto;">
+  <img src="image-1.png" alt="Gini Coefficient" style="width: 48%; max-width: 300px; height: auto;">
+</div>
+
+
+### 🤔Motivation
+
+Based on the finding, we propose a novel jailbreaking attack paradigm leveraging benign content generation. The approach uses a benign prompt to trigger the generation of benign content related to harmful queries, followed by adversarial reasoning prompts to elicit malicious content related to harmful queries.
+
+## 👹Sugar-Coated Poison (SCP)
+
+The SCP attack exploits the model's attention dynamics to bypass safety mechanisms, enabling the generation of malicious content under the guise of benign outputs.
+
+<div style="display: flex; justify-content: center;">
+  <img src="image-2.png" alt="SCP Diagram">
+</div>
+
+## 🛡️POSD (Part-of-Speech Defense) 
+By prioritizing the interpretation of input gerunds, we can block potential security threats earlier in the output process. The result below demonstrates that POSD not only enhances the model's security alignment but also slightly improves its performance on mathematical problems.
+
+<div style="display: flex; justify-content: center;">
+  <img src="image-3.png" alt="POSD">
+</div>
+
+## 📜Configuration
+To ensure the fairness of the experiments, we set the temperature to 0.0 for all models, and the evaluation criteria are consistent with those in [FlipAttack](https://icml.cc/virtual/2025/poster/45738). For details, please refer to my paper.
+
+## 📦Repository Structure
+
+```
+├── words_negative/  # Implementation details for SCP attack
+├── defense/        # POSD defense implementation and experimental results
+├── config/         # Unified configurations for models and datasets
+└── docs/           # Experimental result reports (to be added)
+```
+
+## 👬Citation
+Please cite our paper if you use the code or data in this repository.
+```
+@misc{wu2025sugarcoatedpoisonbenigngeneration,
+      title={Sugar-Coated Poison: Benign Generation Unlocks LLM Jailbreaking}, 
+      author={Yu-Hang Wu and Yu-Jie Xiong and Hao Zhang and Jia-Chen Zhang and Zheng Zhou},
+      year={2025},
+      eprint={2504.05652},
+      archivePrefix={arXiv},
+      primaryClass={cs.CR},
+      url={https://arxiv.org/abs/2504.05652}, 
+}
+```
